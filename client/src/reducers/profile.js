@@ -1,7 +1,10 @@
 import * as actionTypes from "../actions/actionTypes";
 
 const initialState = {
-  profile: {},
+  profile: {
+    experience: [{ _id: "" }],
+    education: [{ _id: "" }],
+  },
   profiles: [],
   repos: [],
   loading: true,
@@ -13,6 +16,7 @@ export default (state = initialState, action) => {
 
   switch (type) {
     case actionTypes.GET_PROFILE:
+    case actionTypes.UPDATE_PROFILE:
       return {
         ...state,
         profile: payload,
