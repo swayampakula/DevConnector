@@ -211,14 +211,15 @@ router.put(
   }
 );
 
-// @route   Delete  api/profile/experience/exp_id
+// @route   Delete  api/profile/experience/:exp_id
 // @desc    Delete experience
 // @access  Private
 
 router.delete("/experience/:exp_id", auth, async (req, res) => {
+  console.log("The Route had come inside Delete Experience");
   try {
-    const profile = await Profile.findOneAndRemove({ user: req.user.id });
-
+    const profile = await Profile.findOne({ user: req.user.id });
+    console.log("Inside the try block of Experience");
     // Get remove index
     const removeIndex = profile.experience
       .map((item) => item.id)
@@ -332,7 +333,7 @@ router.put(
 
 router.delete("/education/:edu_id", auth, async (req, res) => {
   try {
-    const profile = await Profile.findOneAndRemove({ user: req.user.id });
+    const profile = await Profile.findOne({ user: req.user.id });
 
     // Get remove index
     const removeIndex = profile.education
