@@ -23,6 +23,20 @@ export default (state = initialState, action) => {
         loading: false,
       };
 
+    case actionTypes.GET_PROFILES:
+      return {
+        ...state,
+        profiles: payload,
+        loading: false,
+      };
+
+    case actionTypes.GET_REPOS:
+      return {
+        ...state,
+        repos: payload,
+        loading: false,
+      };
+
     case actionTypes.PROFILE_ERROR:
       return {
         ...state,

@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const auth = require("../../middleware/auth");
 const Profile = require("../../models/schema/Profile");
+const Post = require("../../models/schema/Post");
 const User = require("../../models/schema/User");
 const { check, validationResult } = require("express-validator");
 const request = require("request");
@@ -199,7 +200,6 @@ router.put(
     };
 
     try {
-      console.log(req.user);
       const profile = await Profile.findOne({ user: req.user.id });
       profile.experience.unshift(newExp);
       await profile.save();
@@ -216,10 +216,8 @@ router.put(
 // @access  Private
 
 router.delete("/experience/:exp_id", auth, async (req, res) => {
-  console.log("The Route had come inside Delete Experience");
   try {
     const profile = await Profile.findOne({ user: req.user.id });
-    console.log("Inside the try block of Experience");
     // Get remove index
     const removeIndex = profile.experience
       .map((item) => item.id)
@@ -256,12 +254,13 @@ router.get("/user/:user_id", async (req, res) => {
 });
 
 // @route   Delete api/profile/
-// @desc     Delete profile, user and posts
+// @desc    Delete profile, user and posts
 // @access  Private
 
 router.delete("/", auth, async (req, res) => {
   try {
-    // TODO - Remove user posts.
+    //Remove user posts.
+    await Post.deleteMany({ user: req.user.id });
 
     //Remove Profile
     await Profile.findOneAndDelete({ user: req.user.id });

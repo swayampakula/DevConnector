@@ -10,14 +10,7 @@ const Post = require("../../models/schema/Post");
 // @access  Private
 router.post(
   "/",
-  [
-    auth,
-    [
-      check("text", "Text is required")
-        .not()
-        .isEmpty()
-    ]
-  ],
+  [auth, [check("text", "Text is required").not().isEmpty()]],
   async (req, res) => {
     try {
       const errors = validationResult(req);
@@ -32,7 +25,7 @@ router.post(
         text: req.body.text,
         name: user.name,
         avatar: user.avatar,
-        user: req.user.id
+        user: req.user.id,
       });
 
       const post = await newPost.save();
@@ -118,7 +111,8 @@ router.put("/like/:id", auth, async (req, res) => {
     //check whether the user has aleady been liked
 
     if (
-      post.likes.filter(like => like.user.toString() === req.user.id).length > 0
+      post.likes.filter((like) => like.user.toString() === req.user.id).length >
+      0
     ) {
       return res.status(400).json({ msg: "Post already been liked" });
     }
@@ -143,15 +137,15 @@ router.put("/unlike/:id", auth, async (req, res) => {
     //check whether the user has aleady been liked
 
     if (
-      post.likes.filter(like => like.user.toString() === req.user.id).length ===
-      0
+      post.likes.filter((like) => like.user.toString() === req.user.id)
+        .length === 0
     ) {
       return res.status(400).json({ msg: "Post not yet been liked" });
     }
 
     // Get remove index
     const removeIndex = post.likes
-      .map(like => like.user.toString())
+      .map((like) => like.user.toString())
       .indexOf(req.user.id);
 
     post.likes.splice(removeIndex, 1);
@@ -168,31 +162,24 @@ router.put("/unlike/:id", auth, async (req, res) => {
 // @access  Private
 router.post(
   "/comment/:id",
-  [
-    auth,
-    [
-      check("text", "Text is required")
-        .not()
-        .isEmpty()
-    ]
-  ],
+  [auth, [check("text", "Text is required").not().isEmpty()]],
   async (req, res) => {
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const user = await User.findById(req.user.id).select("-password");
+    const post = await Post.findById(req.params.id);
+
+    const newComment = {
+      text: req.body.text,
+      name: user.name,
+      avatar: user.avatar,
+      user: req.user.id,
+    };
     try {
-      const errors = validationResult(req);
-
-      if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-      }
-
-      const user = await User.findById(req.user.id).select("-password");
-      const post = await Post.findById(req.params.id);
-
-      const newComment = {
-        text: req.body.text,
-        name: user.name,
-        avatar: user.avatar,
-        user: req.user.id
-      };
       post.comments.unshift(newComment);
       await post.save();
       res.json(post.comments);
@@ -214,7 +201,7 @@ router.delete("/comment/:id/:comment_id", auth, async (req, res) => {
     //pull comment from the post
 
     const comment = post.comments.find(
-      comment => comment.id === req.params.comment_id
+      (comment) => comment.id === req.params.comment_id
     );
 
     if (!comment) {
@@ -229,8 +216,8 @@ router.delete("/comment/:id/:comment_id", auth, async (req, res) => {
 
     // get remove index
     const removeIndex = post.comments
-      .map(comment => comment.user.toString())
-      .indexOf(req.uder.id);
+      .map((comment) => comment.user.toString())
+      .indexOf(req.user.id);
 
     post.comments.splice(removeIndex, 1);
     await post.save();
